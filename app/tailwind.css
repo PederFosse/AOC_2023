@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('/font/source_code_pro.ttf');
+}

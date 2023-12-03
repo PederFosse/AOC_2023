@@ -17,7 +17,7 @@ export default {
       },
     },
     fontFamily: {
-      primary: ['mooli', 'sans-serif'],
+      primary: ['Source Code Pro', 'sans-serif'],
     },
   },
   plugins: [],
