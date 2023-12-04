@@ -62,11 +62,7 @@ class CardCounter {
     this.cardCount.set(game, this.getCount(game) + 1);
 
     const card = this.getCard(game);
-    if (!card) {
-      return; // game should end
-    }
-
-    const wins = card.wins;
+    const wins = card?.wins;
     if (!wins) {
       return;
     }
@@ -86,7 +82,6 @@ class CardCounter {
 
 class Card {
   number: number;
-  score?: number;
   wins: number = 0;
 
   winningNumbers: number[] = [];
@@ -94,15 +89,14 @@ class Card {
 
   constructor(line: string) {
     const [game, numbers] = line.split(': ');
-    
-    this.number = Number(game.replaceAll(/[a-zA-Z ]/g, ""));
+
+    this.number = Number(game.replaceAll(/[a-zA-Z ]/g, ''));
 
     const [winningNumbers, actualNumbers] = numbers.replaceAll('  ', ' ').split(' | ');
     const winners = winningNumbers.split(' ');
 
     actualNumbers.split(' ').forEach((num) => {
       if (winners.includes(num)) {
-        this.score ? (this.score *= 2) : (this.score = 1);
         this.wins++;
       }
     });
