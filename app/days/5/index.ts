@@ -1,14 +1,41 @@
 import type { Task } from '../task';
 
 export class Day5 implements Task {
-  solve(input: string): Record<string, unknown> {
+  solve(input: string): Promise<Record<string, unknown>> {
+    return {
+      // task1: await this.task1(input),
+      task2: this.task2(input),
+    };
+  }
+
+  private async task1(input: string) {
     const lines = input.split('\n');
     const almanac = new Almanac();
 
     lines.forEach((line) => {
       switch (true) {
         case line.startsWith('seeds: '):
-          return almanac.addSeedsRange(line);
+          return almanac.addSeedsTask1(line);
+        case Map.isMapLine(line):
+          return almanac.addMap(new Map(line));
+        case line !== '':
+          return almanac.addRangeToCurrentMap(line);
+      }
+    });
+
+    return {
+      closest: await almanac.getClosestLocation(),
+    };
+  }
+
+  private task2(input: string) {
+    const lines = input.split('\n');
+    const almanac = new Almanac();
+
+    lines.forEach((line) => {
+      switch (true) {
+        case line.startsWith('seeds: '):
+          return almanac.addSeeds(line);
         case Map.isMapLine(line):
           return almanac.addMap(new Map(line));
         case line !== '':
@@ -23,31 +50,32 @@ export class Day5 implements Task {
 }
 
 class Almanac {
-  seeds: number[] = [];
+  seedRanges: { start: number; length: number }[] = [];
   maps: Map[] = [];
 
-  addSeeds(line: string) {
+  addSeedsTask1(line: string) {
     line
       .replace('seeds: ', '')
       .split(' ')
       .forEach((seed) => {
-        this.seeds.push(Number(seed));
+        const numSeeds = Number(seed);
+        this.seedRanges.push({ start: numSeeds, length: 1 });
       });
   }
 
-  addSeedsRange(line: string) {
+  addSeeds(line: string) {
     let start: number | undefined;
+
     line
       .replace('seeds: ', '')
       .split(' ')
       .forEach((seed, index) => {
-        const seedVal = Number(seed);
+        const numSeeds = Number(seed);
         if (start) {
-          const startVal = start;
-          this.seeds.push(...Array.from({ length: seedVal }).map((_, i) => startVal + i));
+          this.seedRanges.push({ start, length: numSeeds });
           start = undefined;
         } else {
-          start = Number(seed);
+          start = numSeeds;
         }
       });
   }
@@ -65,19 +93,25 @@ class Almanac {
   }
 
   getClosestLocation() {
-    let closest: number | undefined;
+    let distances: number[] = [];
 
-    this.seeds.forEach((seed) => {
-      let currentVal = seed;
-      this.maps.forEach((map) => {
-        currentVal = map.convertItem(currentVal);
-      });
-      if (!closest || (currentVal && closest > currentVal)) {
-        closest = currentVal;
+    this.seedRanges.forEach((range, index) => {
+      // This console log is something to keep me from going instane while waiting for the result
+      console.log(`Checking range ${index + 1}: ${range.start}, ${range.length} seeds`);
+      let currentClosest: number | undefined;
+      for (let seed = range.start; seed < range.start + range.length; seed++) {
+        let current = seed;
+        this.maps.forEach((map) => {
+          current = map.convertItem(current);
+        });
+        if (!currentClosest || currentClosest > current) {
+          currentClosest = current;
+        }
       }
+      distances.push(currentClosest as number);
     });
 
-    return closest;
+    return Math.min(...(distances as number[]));
   }
 }
 
@@ -103,7 +137,6 @@ class Map {
   }
 
   convertItem(item: number): number {
-    console.log('Converting item:', item);
     let converted = item;
     this.ranges.forEach((range) => {
       if (item >= range.src && item < range.src + range.len) {
