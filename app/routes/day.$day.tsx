@@ -60,7 +60,12 @@ export async function action({ request, params }: ActionFunctionArgs) {
     return json('Task not found', { status: 404 });
   }
 
-  return task.solve(data);
+  try {
+    return task.solve(data);
+  } catch (err) {
+    console.log(err);
+    return { error: JSON.stringify(err) };
+  }
 }
 
 export default function Day() {
