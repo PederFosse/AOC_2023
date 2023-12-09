@@ -1,14 +1,14 @@
 import type { Task } from '../task';
 
 export class Day5 implements Task {
-  solve(input: string): Promise<Record<string, unknown>> {
+  solve(input: string): Record<string, unknown> {
     return {
-      // task1: await this.task1(input),
+      task1: this.task1(input),
       task2: this.task2(input),
     };
   }
 
-  private async task1(input: string) {
+  private task1(input: string): number {
     const lines = input.split('\n');
     const almanac = new Almanac();
 
@@ -23,9 +23,7 @@ export class Day5 implements Task {
       }
     });
 
-    return {
-      closest: await almanac.getClosestLocation(),
-    };
+    return almanac.getClosestLocation();
   }
 
   private task2(input: string) {
@@ -43,9 +41,7 @@ export class Day5 implements Task {
       }
     });
 
-    return {
-      closest: almanac.getClosestLocation(),
-    };
+    return almanac.getClosestLocation();
   }
 }
 
