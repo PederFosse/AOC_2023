@@ -11,8 +11,16 @@ export class Day9 implements Task {
       })
       .reduce((prev, cur) => prev + cur, 0);
 
+    const reversed = lines
+      .map((val) => {
+        const values = val.split(' ').map(Number).reverse();
+        return getNextNumber(values);
+      })
+      .reduce((prev, cur) => prev + cur, 0);
+
     return {
-      sum,
+      task1: sum,
+      task2: reversed,
     };
   }
 }
