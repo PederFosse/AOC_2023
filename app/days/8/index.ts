@@ -5,31 +5,28 @@ export class Day8 implements Task {
     const [directions, nodes] = input.trim().split('\n\n');
     const map = new DesertMap(nodes);
 
-    const startingNode = map.getNode('AAA');
+    const distancesTask2 = map.traversePathTask2(directions);
 
     return {
-      task1: map.traversePath(directions),
+      task1: map.traversePathTask1(directions),
+      task2: findlcm(distancesTask2, distancesTask2.length),
     };
   }
 }
 
 class DesertMap {
   nodes = new Map<string, DesertNode>();
+  startingNodes: DesertNode[] = [];
 
   constructor(nodes: string) {
-    let firstVal: string | undefined;
-
     nodes.split('\n').forEach((node) => {
       const [identifier] = node.split(' = ');
-      this.nodes.set(identifier, new DesertNode(identifier, this));
-      if (!firstVal) {
-        firstVal = identifier;
+      const desertNode = new DesertNode(identifier, this);
+      if (/A$/.test(identifier)) {
+        this.startingNodes.push(desertNode);
       }
+      this.nodes.set(identifier, desertNode);
     });
-
-    if (!firstVal) {
-      throw new Error();
-    }
 
     // When all nodes are added, we can add the relations between the nodes
     nodes.split('\n').forEach((node) => {
@@ -50,7 +47,7 @@ class DesertMap {
     return node;
   }
 
-  traversePath(path: string) {
+  traversePathTask1(path: string) {
     let steps = 0;
     let currentNode = this.getNode('AAA');
     while (currentNode.id !== 'ZZZ') {
@@ -58,6 +55,18 @@ class DesertMap {
       steps++;
     }
     return steps;
+  }
+
+  traversePathTask2(path: string) {
+    return this.startingNodes.map((node) => {
+      let steps = 0;
+      let currentNode = node;
+      while (!/Z$/.test(currentNode.id)) {
+        currentNode = currentNode.traverse(path[steps % path.length]);
+        steps++;
+      }
+      return steps;
+    });
   }
 }
 
@@ -83,4 +92,22 @@ class DesertNode {
     }
     return this.right!;
   }
+}
+// Utility function to find
+// GCD of 'a' and 'b'
+function gcd(a: number, b: number) {
+  if (b == 0) return a;
+  return gcd(b, a % b);
+}
+
+// Returns LCM of array elements
+function findlcm(arr: number[], n: number) {
+  // Initialize result
+  let ans = arr[0];
+
+  // ans contains LCM of arr[0], ..arr[i]
+  // after i'th iteration,
+  for (let i = 1; i < n; i++) ans = (arr[i] * ans) / gcd(arr[i], ans);
+
+  return ans;
 }
