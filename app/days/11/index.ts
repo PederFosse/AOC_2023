@@ -8,4 +8,3 @@ export class Day11 implements Task {
     };
   }
 }
-
